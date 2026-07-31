@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let chats = {};
     let currentChatId = null;
-    let pendingChatActionId = null; // ID чата для удаления или переименования
+    let pendingChatActionId = null;
 
     const STORAGE_KEY = 'explow_chat_data';
     const chatHistory = document.getElementById('chat-history');
@@ -49,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let isLoggedIn = false;
 
-    // ВОССТАНОВЛЕНИЕ ПРОФИЛЯ
     const savedUser = localStorage.getItem('explow_user');
     if (savedUser) {
         try {
@@ -62,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.error("Ошибка восстановления профиля:", e); }
     }
 
-    // ЗАГРУЗКА ЧАТОВ
     function loadChats() {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
@@ -84,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(chats)); } catch (e) { console.error("Ошибка сохранения:", e); }
     }
 
-    // РЕНДЕРИНГ САЙДБАРА
     function renderSidebar() {
         chatHistory.innerHTML = '';
         const ids = Object.keys(chats);
@@ -153,7 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderMessages();
             });
 
-            // 🎯 ОБРАБОТЧИКИ МЕНЮ ЧАТА (через модальные окна)
             const deleteBtn = dropdown.querySelector('[data-action="delete"]');
             deleteBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -191,6 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const lang = codeMatch[1] || 'plaintext';
                 const codeContent = codeMatch[2];
                 const displayLang = lang === 'javascript' ? 'JavaScript' : lang.toUpperCase();
+                
                 formatted += `
                 <div class="code-block-wrapper">
                     <div class="code-header">
@@ -315,7 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.location.protocol === 'file:') {
             setTimeout(() => {
                 removeTypingIndicator();
-                // ✨ ОБНОВЛЕННЫЙ ДЕМО-ОТВЕТ С HTML, CSS и JS
                 const mockFallback = `Здесь вы можете увидеть поддержку кода для разных языков:\n\n\`\`\`html\n<h1>Привет, это EXPLOW AI!</h1>\n<p>Это работает!</p>\n\`\`\`\n\n\`\`\`css\nbody {\n  background: black;\n  color: white;\n}\n\`\`\`\n\n\`\`\`javascript\nconsole.log("Этот код работает с красивой подсветкой!");\n\`\`\``;
                 addMessageToCurrentChat('ai', mockFallback);
             }, 500);
@@ -347,20 +343,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ================= ЛОГИКА МОДАЛЬНЫХ ОКОН =================
     function closeModal() {
         document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
         pendingChatActionId = null;
     }
 
-    // Закрытие по клику на затемнённый фон
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });
     });
 
-    // --- ВЫХОД ИЗ ПРОФИЛЯ ---
     document.getElementById('logout-btn').addEventListener('click', function() {
         document.getElementById('modal-logout').classList.add('active');
     });
@@ -373,7 +366,6 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal();
     });
 
-    // --- УДАЛЕНИЕ ЧАТА ---
     document.getElementById('modal-delete-cancel').addEventListener('click', closeModal);
     document.getElementById('modal-delete-confirm').addEventListener('click', function() {
         if (pendingChatActionId) {
@@ -386,7 +378,6 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal();
     });
 
-    // --- ПЕРЕИМЕНОВАНИЕ ЧАТА ---
     document.getElementById('modal-rename-cancel').addEventListener('click', closeModal);
     document.getElementById('modal-rename-confirm').addEventListener('click', function() {
         const input = document.getElementById('modal-rename-input');
@@ -400,7 +391,6 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal();
     });
 
-    // ================= АВТОРИЗАЦИЯ =================
     document.getElementById('auth-submit-btn').addEventListener('click', function() {
         const email = document.getElementById('auth-email').value.trim();
         if (!email) {
@@ -434,7 +424,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ================= ИНИЦИАЛИЗАЦИЯ =================
     loadChats();
     if (Object.keys(chats).length === 0) {
         createNewChat();
