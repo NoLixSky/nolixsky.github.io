@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendBtn = document.getElementById('send-btn');
     const newChatBtn = document.getElementById('new-chat-btn');
 
+    // Убедитесь, что URL совпадает с вашим Worker
     const WORKER_URL = 'https://explow-proxy.avatarsale75.workers.dev';
 
     function loadChats() {
@@ -185,9 +186,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`Ошибка парсинга JSON: ${rawText.substring(0, 100)}`);
             }
 
+            // ✅ УНИВЕРСАЛЬНАЯ ОБРАБОТКА ОШИБОК БЕЗ undefined
             if (data.error) {
-                throw new Error(`Groq API Error: ${data.error.message}`);
+                let errorMsg = "Неизвестная ошибка API";
+                if (typeof data.error === 'string') {
+                    errorMsg = data.error;
+                } else if (typeof data.error === 'object') {
+                    errorMsg = data.error.message || JSON.stringify(data.error);
+                }
+                throw new Error(`API Error: ${errorMsg}`);
             }
+
             return data;
         })
         .then(data => {
@@ -199,7 +208,6 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             removeTypingIndicator();
-            // Теперь будет видно точную ошибку!
             addMessageToCurrentChat('ai', "🚨 ОШИБКА:\n" + error.message);
         });
     }
@@ -210,6 +218,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     newChatBtn.addEventListener('click', createNewChat);
     sendBtn.addEventListener('click', handleSendMessage);
-    inputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSendMessage(); }
-    );
+    inputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSendMessage(); });
 });
