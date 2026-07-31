@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const WORKER_URL = 'https://explow-proxy.avatarsale75.workers.dev';
 
     let isLoggedIn = false;
+    let pendingRenameChatId = null; // ID чата, который переименовываем
 
     // 1. ВОССТАНОВЛЕНИЕ ПРОФИЛЯ
     const savedUser = localStorage.getItem('explow_user');
@@ -69,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const parsed = JSON.parse(saved);
                 if (typeof parsed === 'object' && !Array.isArray(parsed)) {
                     chats = parsed;
-                    // Конвертация старого формата
                     for (const key in chats) {
                         if (Array.isArray(chats[key])) {
                             chats[key] = { title: 'Новый чат', messages: chats[key] };
@@ -153,27 +153,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderMessages();
             });
 
-            dropdown.querySelectorAll('.dropdown-item').forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const action = item.dataset.action;
-                    if (action === 'rename') {
-                        const newTitle = prompt('Введите новое название чата:', title);
-                        if (newTitle && newTitle.trim() !== '') {
-                            chats[id].title = newTitle.trim();
-                            saveChats();
-                            renderSidebar();
-                        }
-                    } else if (action === 'delete') {
-                        if (confirm('Удалить этот чат?')) {
-                            delete chats[id];
-                            saveChats();
-                            renderSidebar();
-                            renderMessages();
-                        }
-                    }
-                    dropdown.classList.remove('open');
-                });
+            // ================= УДАЛЕНИЕ ЧЕРЕЗ МОДАЛКУ =================
+            const deleteBtn = dropdown.querySelector('[data-action="delete"]');
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.remove('open');
+                pendingRenameChatId = id;
+                openModal('modal-delete');
+            });
+
+            // ================= ПЕРЕИМЕНОВАНИЕ ЧЕРЕЗ МОДАЛКУ =================
+            const renameBtn = dropdown.querySelector('[data-action="rename"]');
+            renameBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.remove('open');
+                pendingRenameChatId = id;
+                const currentTitle = chats[id].title || 'Новый чат';
+                document.getElementById('modal-rename-input').value = currentTitle;
+                openModal('modal-rename');
             });
 
             document.addEventListener('click', (e) => {
@@ -357,7 +354,61 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 5. ЛОГИКА ВХОДА
+    // ================= ЛОГИКА МОДАЛЬНЫХ ОКОН =================
+    function openModal(id) {
+        document.getElementById('modal-overlay').classList.add('active');
+        document.getElementById(id).style.display = 'block';
+    }
+    function closeModal() {
+        document.getElementById('modal-overlay').classList.remove('active');
+        document.querySelectorAll('.modal-box').forEach(el => el.style.display = 'none');
+    }
+
+    document.getElementById('modal-overlay').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // Окно выхода
+    document.getElementById('logout-btn').addEventListener('click', function() {
+        openModal('modal-logout');
+    });
+    document.getElementById('modal-logout-cancel').addEventListener('click', closeModal);
+    document.getElementById('modal-logout-confirm').addEventListener('click', function() {
+        localStorage.removeItem('explow_user');
+        isLoggedIn = false;
+        document.getElementById('user-profile').style.display = 'none';
+        document.getElementById('login-btn').style.display = 'flex';
+        closeModal();
+        console.log("👋 Выход выполнен.");
+    });
+
+    // Окно удаления чата
+    document.getElementById('modal-delete-cancel').addEventListener('click', closeModal);
+    document.getElementById('modal-delete-confirm').addEventListener('click', function() {
+        if (pendingRenameChatId) {
+            delete chats[pendingRenameChatId];
+            pendingRenameChatId = null;
+            saveChats();
+            renderSidebar();
+            renderMessages();
+        }
+        closeModal();
+    });
+
+    // Окно переименования
+    document.getElementById('modal-rename-cancel').addEventListener('click', closeModal);
+    document.getElementById('modal-rename-confirm').addEventListener('click', function() {
+        const input = document.getElementById('modal-rename-input');
+        const newTitle = input.value.trim();
+        if (pendingRenameChatId && newTitle !== '') {
+            chats[pendingRenameChatId].title = newTitle;
+            pendingRenameChatId = null;
+            saveChats();
+            renderSidebar();
+        }
+        closeModal();
+    });
+
     document.getElementById('auth-submit-btn').addEventListener('click', function() {
         console.log("🔑 Попытка входа...");
         const email = document.getElementById('auth-email').value.trim();
@@ -365,7 +416,6 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Пожалуйста, введите Email');
             return;
         }
-        
         const name = email.split('@')[0];
         const avatarLetter = name.charAt(0).toUpperCase();
         const userData = { username: name, email: email, avatar: avatarLetter };
@@ -384,19 +434,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`✅ Пользователь "${name}" вошел.`);
     });
 
-    // 6. МЕНЮ ПРОФИЛЯ И ВЫХОД
     document.getElementById('profile-dots').addEventListener('click', function(e) {
         e.stopPropagation();
         document.getElementById('profile-dropdown').classList.toggle('open');
-    });
-
-    document.getElementById('logout-btn').addEventListener('click', function() {
-        localStorage.removeItem('explow_user');
-        isLoggedIn = false;
-        document.getElementById('user-profile').style.display = 'none';
-        document.getElementById('login-btn').style.display = 'flex';
-        document.getElementById('profile-dropdown').classList.remove('open');
-        console.log("👋 Выход выполнен.");
     });
 
     document.addEventListener('click', function(e) {
@@ -418,14 +458,12 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("📂 Загружены сохраненные чаты.");
     }
 
-    // 8. КЛИК ПО КНОПКЕ ВХОДА
     document.getElementById('login-btn').addEventListener('click', function() {
         document.getElementById('main-chat-view').style.display = 'none';
         document.getElementById('auth-screen').style.display = 'flex';
         document.getElementById('sidebar').style.display = 'none';
     });
 
-    // 9. ОБРАБОТЧИКИ СОБЫТИЙ ЧАТА
     newChatBtn.addEventListener('click', createNewChat);
     sendBtn.addEventListener('click', handleSendMessage);
     inputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSendMessage(); });
