@@ -8,8 +8,84 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-    <!-- ✅ ИСПРАВЛЕНИЕ: теперь пути ведут прямо к корневым файлам -->
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Дополнительные стили, которых не было в style.css, но нужны для модалок */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal-box {
+            background: #111111;
+            border: 1px solid #333333;
+            border-radius: 16px;
+            padding: 30px 35px;
+            min-width: 320px;
+            max-width: 420px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+            text-align: center;
+        }
+        .modal-title { font-size: 18px; font-weight: 500; color: #fff; margin-bottom: 8px; }
+        .modal-desc { font-size: 14px; color: #aaa; margin-bottom: 24px; line-height: 1.5; }
+        
+        .modal-input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #1c1c1c;
+            border: 1px solid #333;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            margin-bottom: 20px;
+        }
+        .modal-input:focus { border-color: #555; }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        .modal-btn {
+            padding: 10px 24px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .modal-btn.cancel { background: #2a2a2a; color: #aaa; }
+        .modal-btn.cancel:hover { background: #333; color: #fff; }
+        .modal-btn.danger { background: #d32f2f; color: #fff; }
+        .modal-btn.danger:hover { opacity: 0.8; }
+        .modal-btn.primary { background: #ffffff; color: #000; }
+        .modal-btn.primary:hover { opacity: 0.8; }
+
+        /* 📝 УМЕНЬШАЕМ ДЛИНУ ОКНА ВВОДА */
+        .input-area {
+            width: 100%;
+            max-width: 560px !important; /* Было 720px */
+            margin: 0 auto;
+            background-color: #1c1c1c;
+            border-radius: 20px;
+            padding: 8px 8px 8px 16px;
+            display: flex;
+            align-items: center;
+            border: 1px solid #2a2a2a;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+    </style>
 </head>
 <body>
     <div class="sidebar" id="sidebar">
@@ -70,9 +146,42 @@
         </div>
     </div>
 
-    <!-- Подключаем Highlight.js CDN для работы подсветки -->
+    <!-- ==================== МОДАЛЬНЫЕ ОКНА ==================== -->
+    <div class="modal-overlay" id="modal-overlay">
+        
+        <!-- Окно выхода -->
+        <div class="modal-box" id="modal-logout">
+            <div class="modal-title">Выход из аккаунта</div>
+            <div class="modal-desc">Вы действительно хотите выйти?</div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="modal-logout-cancel">Отмена</button>
+                <button class="modal-btn danger" id="modal-logout-confirm">Выйти</button>
+            </div>
+        </div>
+
+        <!-- Окно удаления чата -->
+        <div class="modal-box" id="modal-delete">
+            <div class="modal-title">Удалить чат</div>
+            <div class="modal-desc">Вы действительно хотите удалить этот чат? Восстановить его будет невозможно.</div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="modal-delete-cancel">Отмена</button>
+                <button class="modal-btn danger" id="modal-delete-confirm">Удалить</button>
+            </div>
+        </div>
+
+        <!-- Окно переименования чата -->
+        <div class="modal-box" id="modal-rename">
+            <div class="modal-title">Переименовать чат</div>
+            <input type="text" class="modal-input" id="modal-rename-input" placeholder="Введите новое название...">
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="modal-rename-cancel">Отмена</button>
+                <button class="modal-btn primary" id="modal-rename-confirm">Сохранить</button>
+            </div>
+        </div>
+
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <!-- ✅ ИСПРАВЛЕНИЕ: теперь путь ведет прямо к корневому файлу script.js -->
     <script src="script.js"></script>
 </body>
 </html>
