@@ -36,6 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let chats = {};
     let currentChatId = null;
+    let pendingChatActionId = null; // ID чата для удаления или переименования
+
     const STORAGE_KEY = 'explow_chat_data';
     const chatHistory = document.getElementById('chat-history');
     const messagesContainer = document.getElementById('messages-container');
@@ -46,9 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const WORKER_URL = 'https://explow-proxy.avatarsale75.workers.dev';
 
     let isLoggedIn = false;
-    let pendingRenameChatId = null; // ID чата, который переименовываем
 
-    // 1. ВОССТАНОВЛЕНИЕ ПРОФИЛЯ
+    // ВОССТАНОВЛЕНИЕ ПРОФИЛЯ
     const savedUser = localStorage.getItem('explow_user');
     if (savedUser) {
         try {
@@ -58,11 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('login-btn').style.display = 'none';
             document.getElementById('user-profile').style.display = 'flex';
             isLoggedIn = true;
-            console.log("✅ Профиль восстановлен:", userData.username);
         } catch (e) { console.error("Ошибка восстановления профиля:", e); }
     }
 
-    // 2. ЗАГРУЗКА ЧАТОВ
+    // ЗАГРУЗКА ЧАТОВ
     function loadChats() {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(chats)); } catch (e) { console.error("Ошибка сохранения:", e); }
     }
 
-    // 3. РЕНДЕРИНГ
+    // РЕНДЕРИНГ САЙДБАРА
     function renderSidebar() {
         chatHistory.innerHTML = '';
         const ids = Object.keys(chats);
@@ -153,24 +153,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderMessages();
             });
 
-            // ================= УДАЛЕНИЕ ЧЕРЕЗ МОДАЛКУ =================
+            // 🎯 ОБРАБОТЧИКИ МЕНЮ ЧАТА (через модальные окна)
             const deleteBtn = dropdown.querySelector('[data-action="delete"]');
             deleteBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 dropdown.classList.remove('open');
-                pendingRenameChatId = id;
-                openModal('modal-delete');
+                pendingChatActionId = id;
+                document.getElementById('modal-delete').classList.add('active');
             });
 
-            // ================= ПЕРЕИМЕНОВАНИЕ ЧЕРЕЗ МОДАЛКУ =================
             const renameBtn = dropdown.querySelector('[data-action="rename"]');
             renameBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 dropdown.classList.remove('open');
-                pendingRenameChatId = id;
+                pendingChatActionId = id;
                 const currentTitle = chats[id].title || 'Новый чат';
                 document.getElementById('modal-rename-input').value = currentTitle;
-                openModal('modal-rename');
+                document.getElementById('modal-rename').classList.add('active');
             });
 
             document.addEventListener('click', (e) => {
@@ -301,10 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleSendMessage() {
         const text = inputField.value.trim();
-        if (!text || !currentChatId) {
-            console.warn("⚠️ Текст пуст или чат не выбран.");
-            return;
-        }
+        if (!text || !currentChatId) return;
 
         if (!isLoggedIn) {
             addMessageToCurrentChat('ai', '⚠️ Пожалуйста, сначала зарегистрируйтесь (нажмите кнопку "Вход" внизу слева), чтобы пользоваться ИИ.');
@@ -316,13 +312,12 @@ document.addEventListener('DOMContentLoaded', () => {
         inputField.value = '';
         addTypingIndicator();
 
-        console.log("📤 Отправка запроса на:", WORKER_URL);
-
         if (window.location.protocol === 'file:') {
             setTimeout(() => {
                 removeTypingIndicator();
-                addMessageToCurrentChat('ai', '⚠️ Вы запустили файл локально. Браузер блокирует запросы к Cloudflare (CORS). Запустите через VS Code Live Server или загрузите на GitHub Pages.');
-                console.error("🚫 Блокировка CORS из-за file:// протокола.");
+                // ✨ ОБНОВЛЕННЫЙ ДЕМО-ОТВЕТ С HTML, CSS и JS
+                const mockFallback = `Здесь вы можете увидеть поддержку кода для разных языков:\n\n\`\`\`html\n<h1>Привет, это EXPLOW AI!</h1>\n<p>Это работает!</p>\n\`\`\`\n\n\`\`\`css\nbody {\n  background: black;\n  color: white;\n}\n\`\`\`\n\n\`\`\`javascript\nconsole.log("Этот код работает с красивой подсветкой!");\n\`\`\``;
+                addMessageToCurrentChat('ai', mockFallback);
             }, 500);
             return;
         }
@@ -348,29 +343,26 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             removeTypingIndicator();
-            const errorMsg = `❌ Ошибка связи с Cloudflare: ${error.message}`;
-            console.error(errorMsg);
-            addMessageToCurrentChat('ai', errorMsg);
+            addMessageToCurrentChat('ai', `❌ Ошибка связи с Cloudflare: ${error.message}`);
         });
     }
 
     // ================= ЛОГИКА МОДАЛЬНЫХ ОКОН =================
-    function openModal(id) {
-        document.getElementById('modal-overlay').classList.add('active');
-        document.getElementById(id).style.display = 'block';
-    }
     function closeModal() {
-        document.getElementById('modal-overlay').classList.remove('active');
-        document.querySelectorAll('.modal-box').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
+        pendingChatActionId = null;
     }
 
-    document.getElementById('modal-overlay').addEventListener('click', function(e) {
-        if (e.target === this) closeModal();
+    // Закрытие по клику на затемнённый фон
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
     });
 
-    // Окно выхода
+    // --- ВЫХОД ИЗ ПРОФИЛЯ ---
     document.getElementById('logout-btn').addEventListener('click', function() {
-        openModal('modal-logout');
+        document.getElementById('modal-logout').classList.add('active');
     });
     document.getElementById('modal-logout-cancel').addEventListener('click', closeModal);
     document.getElementById('modal-logout-confirm').addEventListener('click', function() {
@@ -379,15 +371,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('user-profile').style.display = 'none';
         document.getElementById('login-btn').style.display = 'flex';
         closeModal();
-        console.log("👋 Выход выполнен.");
     });
 
-    // Окно удаления чата
+    // --- УДАЛЕНИЕ ЧАТА ---
     document.getElementById('modal-delete-cancel').addEventListener('click', closeModal);
     document.getElementById('modal-delete-confirm').addEventListener('click', function() {
-        if (pendingRenameChatId) {
-            delete chats[pendingRenameChatId];
-            pendingRenameChatId = null;
+        if (pendingChatActionId) {
+            delete chats[pendingChatActionId];
+            pendingChatActionId = null;
             saveChats();
             renderSidebar();
             renderMessages();
@@ -395,22 +386,22 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal();
     });
 
-    // Окно переименования
+    // --- ПЕРЕИМЕНОВАНИЕ ЧАТА ---
     document.getElementById('modal-rename-cancel').addEventListener('click', closeModal);
     document.getElementById('modal-rename-confirm').addEventListener('click', function() {
         const input = document.getElementById('modal-rename-input');
         const newTitle = input.value.trim();
-        if (pendingRenameChatId && newTitle !== '') {
-            chats[pendingRenameChatId].title = newTitle;
-            pendingRenameChatId = null;
+        if (pendingChatActionId && newTitle !== '') {
+            chats[pendingChatActionId].title = newTitle;
+            pendingChatActionId = null;
             saveChats();
             renderSidebar();
         }
         closeModal();
     });
 
+    // ================= АВТОРИЗАЦИЯ =================
     document.getElementById('auth-submit-btn').addEventListener('click', function() {
-        console.log("🔑 Попытка входа...");
         const email = document.getElementById('auth-email').value.trim();
         if (!email) {
             alert('Пожалуйста, введите Email');
@@ -430,8 +421,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('main-chat-view').style.display = 'flex';
         document.getElementById('sidebar').style.display = 'flex';
-        
-        console.log(`✅ Пользователь "${name}" вошел.`);
     });
 
     document.getElementById('profile-dots').addEventListener('click', function(e) {
@@ -445,17 +434,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 7. ИНИЦИАЛИЗАЦИЯ
+    // ================= ИНИЦИАЛИЗАЦИЯ =================
     loadChats();
     if (Object.keys(chats).length === 0) {
         createNewChat();
-        console.log("🆕 Создан первый чат.");
     } else {
         const ids = Object.keys(chats);
         currentChatId = ids[0];
         renderSidebar();
         renderMessages();
-        console.log("📂 Загружены сохраненные чаты.");
     }
 
     document.getElementById('login-btn').addEventListener('click', function() {
