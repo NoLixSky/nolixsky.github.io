@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendBtn = document.getElementById('send-btn');
     const newChatBtn = document.getElementById('new-chat-btn');
 
+    // ВАЖНО: Ваш уникальный адрес Cloudflare Worker
+    const WORKER_URL = 'https://explow-proxy.avatarsale75.workers.dev';
+
     function loadChats() {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
@@ -165,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chats[currentChatId].push({ type, text });
         saveChats();
         renderMessages();
-        renderSidebar();
+        renderSidebar(); // Обновляем заголовок чата (если это первый запрос)
     }
 
     function addTypingIndicator() {
@@ -198,21 +201,43 @@ document.addEventListener('DOMContentLoaded', () => {
         if (wrapper) wrapper.remove();
     }
 
+    // Это самая важная функция — реальная отправка запроса к ИИ через Cloudflare
     function handleSendMessage() {
         const text = inputField.value.trim();
         if (!text || !currentChatId) return;
 
+        // 1. Показываем сообщение пользователя
         addMessageToCurrentChat('user', text);
         inputField.value = '';
-
+        
+        // 2. Включаем анимацию "печатает..."
         addTypingIndicator();
 
-        // ВНИМАНИЕ: Здесь заглушка. В финальной версии замените этот блок на fetch запрос к вашему Cloudflare Worker + Groq!
-        setTimeout(() => {
+        // 3. Отправляем запрос в ваш Cloudflare Worker
+        fetch(WORKER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Ошибка сервера: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
             removeTypingIndicator();
-            const aiText = "Привет! Это реальный многопоточный чат с сохранением истории. В следующей версии я подключусь к настоящему ИИ (Llama 3 через Groq) по твоему запросу!";
+            // Извлекаем ответ ИИ из формата OpenAI (Groq возвращает именно в таком формате)
+            const aiText = data.choices && data.choices.length > 0 
+                ? data.choices[0].message.content 
+                : "Извините, не удалось получить ответ.";
+            
             addMessageToCurrentChat('ai', aiText);
-        }, 1200);
+        })
+        .catch(error => {
+            removeTypingIndicator();
+            addMessageToCurrentChat('ai', "🚫 Ошибка соединения с ИИ: " + error.message);
+        });
     }
 
     loadChats();
