@@ -157,11 +157,44 @@ body::before {
 .message.user { background: linear-gradient(135deg, #2e2e2e, #262626); color: #fff; border-radius: 20px 20px 4px 20px; }
 .message.ai { background: linear-gradient(135deg, #191919, #121212); color: #e5e5e5; border-radius: 20px 20px 20px 4px; }
 
-.code-block-wrapper { border: 1px solid #333333; border-radius: 10px; background-color: #000000; overflow: hidden; margin-top: 10px; margin-bottom: 5px; width: 100%; }
-.code-header { display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; background-color: #222222; border-bottom: 1px solid #333333; font-family: 'Inter', sans-serif; }
+/* 🌟 ОБНОВЛЕННАЯ РАМКА КОДА */
+.code-block-wrapper {
+    border: 1px solid #333333;
+    border-radius: 10px;
+    background-color: #000000;
+    overflow: hidden;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    width: 100%;
+}
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 12px;
+    background-color: #222222;
+    border-bottom: 1px solid #333333;
+    font-family: 'Inter', sans-serif;
+}
 .code-lang { font-size: 12px; font-weight: 500; color: #8ab4f8; text-transform: uppercase; letter-spacing: 0.5px; }
-.copy-btn { background: transparent; border: none; color: #888888; cursor: pointer; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 4px; transition: all 0.2s; }
+.copy-btn {
+    background: transparent;
+    border: none;
+    color: #888888;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
 .copy-btn:hover { color: #ffffff; background-color: #333333; }
+.copy-btn svg { stroke: #888888; transition: stroke 0.2s; }
+.copy-btn:hover svg { stroke: #ffffff; }
+
 .code-block-wrapper pre { margin: 0 !important; padding: 16px !important; background: transparent !important; border-radius: 0 !important; border: none !important; }
 .code-block-wrapper code { font-family: 'Courier New', monospace; font-size: 14px; }
 
@@ -186,7 +219,6 @@ body::before {
 .auth-input:focus { border-color: #444; background-color: #212121; }
 .auth-input::placeholder { color: #666666; }
 
-/* ✅ НОВАЯ КНОПКА «ВОЙТИ» С БЕЛОЙ ОБВОДКОЙ */
 .auth-submit-btn {
     margin-top: 10px;
     padding: 14px;
@@ -205,7 +237,6 @@ body::before {
     color: #000000;
 }
 
-/* 🎯 МОДАЛЬНЫЕ ОКНА (как на скрине) */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -231,7 +262,6 @@ body::before {
 }
 .modal-title { font-size: 18px; font-weight: 600; color: #ffffff; line-height: 1.4; }
 .modal-desc { font-size: 14px; font-weight: 400; color: #b0b0b0; line-height: 1.5; }
-
 .modal-input {
     background: #141414;
     border: 1px solid #2a2a2a;
