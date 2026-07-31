@@ -4,43 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>explow</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Подключаем шрифт -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <!-- 🚀 НОВОЕ: Подключаем библиотеку для подсветки кода (Тема Dark) -->
+    <!-- Подключаем библиотеку подсветки кода (CDN) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <!-- Подключаем локальный CSS -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div class="sidebar-title">explow</div>
         <button class="new-chat-btn" id="new-chat-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 5v14M5 12h14" />
-            </svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" /></svg>
             Новый чат
         </button>
         <div class="chat-history" id="chat-history"></div>
+        <div class="sidebar-footer">
+            <div class="auth-container" id="auth-container">
+                <button class="auth-btn" id="login-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                    Вход
+                </button>
+                <div class="user-profile" id="user-profile">
+                    <div class="user-avatar" id="user-avatar">U</div>
+                    <div class="user-name" id="user-name">User</div>
+                    <div class="profile-dots-wrapper" id="profile-dots">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></svg>
+                        <div class="profile-dropdown" id="profile-dropdown">
+                            <div class="dropdown-item" id="logout-btn">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                Выйти
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="main-content">
-        <div class="header-area">
-            <div class="brand-name">explow</div>
+        <div id="main-chat-view">
+            <div class="header-area" id="chat-header">
+                <div class="brand-name">explow</div>
+            </div>
+            <div class="messages-container" id="messages-container">
+                <div class="greeting-wrapper">
+                    <div class="greeting-text">Чем я могу вам помочь?</div>
+                </div>
+            </div>
+            <div class="input-area">
+                <input type="text" class="input-field" id="input-field" placeholder="Напишите ваш запрос...">
+                <button class="send-btn" id="send-btn">
+                    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                </button>
+            </div>
         </div>
-        <div class="messages-container" id="messages-container"></div>
-        <div class="input-area">
-            <input type="text" class="input-field" id="input-field" placeholder="Напишите ваш запрос...">
-            <button class="send-btn" id="send-btn">
-                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 4l1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-                </svg>
-            </button>
+
+        <div id="auth-screen">
+            <div class="auth-logo">explow</div>
+            <div class="auth-box">
+                <input type="email" class="auth-input" id="auth-email" placeholder="Email">
+                <input type="password" class="auth-input" id="auth-pass" placeholder="Password">
+                <button class="auth-submit-btn" id="auth-submit-btn">Войти</button>
+            </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
-    <!-- 🚀 НОВОЕ: Подгружаем скрипт библиотеки подсветки -->
+    <!-- Подключаем Highlight.js CDN для работы подсветки -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- Подключаем локальный JS -->
+    <script src="js/script.js"></script>
 </body>
 </html>
