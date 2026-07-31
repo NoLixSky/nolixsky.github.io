@@ -8,8 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendBtn = document.getElementById('send-btn');
     const newChatBtn = document.getElementById('new-chat-btn');
 
+    // 🌐 Убедитесь, что этот URL совпадает с вашим Cloudflare Worker
     const WORKER_URL = 'https://explow-proxy.avatarsale75.workers.dev';
 
+    // 1. Загрузка и сохранение в localStorage
     function loadChats() {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
@@ -24,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(chats)); } catch (e) {}
     }
 
+    // 2. Рендеринг сайдбара (список чатов)
     function renderSidebar() {
         chatHistory.innerHTML = '';
         const ids = Object.keys(chats);
@@ -88,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // 3. Рендеринг сообщений (пузырьки)
     function renderMessages() {
         messagesContainer.innerHTML = '';
         if (!currentChatId || !chats[currentChatId] || chats[currentChatId].length === 0) {
@@ -115,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
+    // 4. Создание нового чата
     function createNewChat() {
         const newId = 'chat_' + Date.now();
         chats[newId] = [];
@@ -125,14 +130,16 @@ document.addEventListener('DOMContentLoaded', () => {
         inputField.focus();
     }
 
+    // 5. Добавление сообщения в текущий чат
     function addMessageToCurrentChat(type, text) {
         if (!currentChatId || !chats[currentChatId]) return;
         chats[currentChatId].push({ type, text });
         saveChats();
         renderMessages();
-        renderSidebar();
+        renderSidebar(); // Обновляет заголовок чата
     }
 
+    // 6. Анимация "печатает..."
     function addTypingIndicator() {
         const existing = document.getElementById('typing-wrapper');
         if(existing) existing.remove();
@@ -161,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (wrapper) wrapper.remove();
     }
 
-    // Функция отправки с выводом реальной ошибки
+    // 7. Отправка сообщения и обработка ответа от Cloudflare/Groq
     function handleSendMessage() {
         const text = inputField.value.trim();
         if (!text || !currentChatId) return;
@@ -175,15 +182,16 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: text })
         })
-        .then(response => {
+        .then(async response => {
             if (!response.ok) {
-                // Если сервер ответил ошибкой (например 403 или 500), возвращаем её текст
-                return response.text().then(text => { throw new Error(`Ошибка сервера (${response.status}): ${text}`); });
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
             }
             return response.json();
         })
         .then(data => {
             removeTypingIndicator();
+            // ⭐ ИЗВЛЕКАЕМ ОТВЕТ ИЗ JSON, КОТОРЫЙ ВЫ ПРИСЛАЛИ
             const aiText = data.choices && data.choices.length > 0 
                 ? data.choices[0].message.content 
                 : "Извините, не удалось получить ответ.";
@@ -191,15 +199,23 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             removeTypingIndicator();
-            // Тут мы выводим реальную ошибку прямо в чат!
-            addMessageToCurrentChat('ai', "🔴 ОШИБКА: " + error.message);
+            // Вывод детальной ошибки прямо в чат
+            addMessageToCurrentChat('ai', "🚨 ОШИБКА:\n" + error.message);
         });
     }
 
+    // 8. Инициализация
     loadChats();
-    if (Object.keys(chats).length === 0) createNewChat();
-    else { const ids = Object.keys(chats); currentChatId = ids[0]; renderSidebar(); renderMessages(); }
+    if (Object.keys(chats).length === 0) {
+        createNewChat();
+    } else {
+        const ids = Object.keys(chats);
+        currentChatId = ids[0];
+        renderSidebar();
+        renderMessages();
+    }
 
+    // 9. Обработчики событий (клик и Enter)
     newChatBtn.addEventListener('click', createNewChat);
     sendBtn.addEventListener('click', handleSendMessage);
     inputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSendMessage(); });
