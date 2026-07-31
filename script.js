@@ -1,46 +1,113 @@
+function fallbackCopyTextToClipboard(text) {
+    var textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+    textArea.style.top = "-9999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try { document.execCommand('copy'); } catch (err) { console.error(err); }
+    document.body.removeChild(textArea);
+}
+
+window.copyCode = function(btnElement) {
+    const wrapper = btnElement.closest('.code-block-wrapper');
+    const codeElement = wrapper.querySelector('pre code');
+    if (codeElement) {
+        const textToCopy = codeElement.innerText;
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalText = btnElement.innerHTML;
+                btnElement.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Скопировано!`;
+                setTimeout(() => { btnElement.innerHTML = originalText; }, 2000);
+            }).catch(() => { fallbackCopyTextToClipboard(textToCopy); });
+        } else {
+            fallbackCopyTextToClipboard(textToCopy);
+            const originalText = btnElement.innerHTML;
+            btnElement.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Скопировано!`;
+            setTimeout(() => { btnElement.innerHTML = originalText; }, 2000);
+        }
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("✅ EXPLOW: Скрипт полностью загружен!");
+    
     let chats = {};
     let currentChatId = null;
     const STORAGE_KEY = 'explow_chat_data';
     const chatHistory = document.getElementById('chat-history');
     const messagesContainer = document.getElementById('messages-container');
-    const inputField = document.getElementById('input-field');
     const sendBtn = document.getElementById('send-btn');
     const newChatBtn = document.getElementById('new-chat-btn');
-
-    // Убедитесь, что URL совпадает с вашим Worker
+    const chatHeader = document.getElementById('chat-header');
+    const inputField = document.getElementById('input-field');
     const WORKER_URL = 'https://explow-proxy.avatarsale75.workers.dev';
 
+    let isLoggedIn = false;
+
+    // 1. ВОССТАНОВЛЕНИЕ ПРОФИЛЯ
+    const savedUser = localStorage.getItem('explow_user');
+    if (savedUser) {
+        try {
+            const userData = JSON.parse(savedUser);
+            document.getElementById('user-name').innerText = userData.username;
+            document.getElementById('user-avatar').innerText = userData.avatar;
+            document.getElementById('login-btn').style.display = 'none';
+            document.getElementById('user-profile').style.display = 'flex';
+            isLoggedIn = true;
+            console.log("✅ Профиль восстановлен:", userData.username);
+        } catch (e) { console.error("Ошибка восстановления профиля:", e); }
+    }
+
+    // 2. ЗАГРУЗКА ЧАТОВ
     function loadChats() {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 const parsed = JSON.parse(saved);
-                if (typeof parsed === 'object' && parsed !== null) chats = parsed;
+                if (typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    chats = parsed;
+                    // Конвертация старого формата
+                    for (const key in chats) {
+                        if (Array.isArray(chats[key])) {
+                            chats[key] = { title: 'Новый чат', messages: chats[key] };
+                        }
+                    }
+                }
             }
-        } catch (e) { chats = {}; }
+        } catch (e) { console.error("Ошибка загрузки чатов:", e); chats = {}; }
     }
 
     function saveChats() {
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(chats)); } catch (e) {}
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(chats)); } catch (e) { console.error("Ошибка сохранения:", e); }
     }
 
+    // 3. РЕНДЕРИНГ
     function renderSidebar() {
         chatHistory.innerHTML = '';
         const ids = Object.keys(chats);
-        if (ids.length === 0) { currentChatId = null; } 
-        else if (!currentChatId || !chats[currentChatId]) { currentChatId = ids[0]; }
+        if (ids.length === 0) {
+            currentChatId = null;
+        } else if (!currentChatId || !chats[currentChatId]) {
+            currentChatId = ids[0];
+        }
 
         ids.forEach(id => {
             const chatItem = document.createElement('div');
             chatItem.className = 'chat-item';
             if (id === currentChatId) chatItem.classList.add('active');
 
-            const messages = chats[id] || [];
-            let title = 'Новый чат';
-            if (messages.length > 0) {
-                const firstUserMsg = messages.find(m => m.type === 'user');
-                if (firstUserMsg) title = firstUserMsg.text.length > 25 ? firstUserMsg.text.substring(0, 25) + '...' : firstUserMsg.text;
+            const chatData = chats[id];
+            let title = chatData.title || 'Новый чат';
+            if (!chatData.title && chatData.messages && chatData.messages.length > 0) {
+                const firstUserMsg = chatData.messages.find(m => m.type === 'user');
+                if (firstUserMsg) {
+                    title = firstUserMsg.text.length > 25 ? firstUserMsg.text.substring(0, 25) + '...' : firstUserMsg.text;
+                    chatData.title = title;
+                    saveChats();
+                }
             }
 
             const chatText = document.createElement('span');
@@ -49,14 +116,22 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const dotsWrapper = document.createElement('div');
             dotsWrapper.className = 'dots-wrapper';
-            
             const dots = document.createElement('span');
             dots.className = 'menu-dots';
             dots.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></svg>`;
 
             const dropdown = document.createElement('div');
             dropdown.className = 'dropdown-menu';
-            dropdown.innerHTML = `<div class="dropdown-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> Удалить чат</div>`;
+            dropdown.innerHTML = `
+                <div class="dropdown-item" data-action="rename">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                    Переименовать
+                </div>
+                <div class="dropdown-item delete" data-action="delete">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    Удалить
+                </div>
+            `;
 
             dotsWrapper.appendChild(dots);
             dotsWrapper.appendChild(dropdown);
@@ -78,28 +153,84 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderMessages();
             });
 
-            const deleteBtn = dropdown.querySelector('.dropdown-item');
-            deleteBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                delete chats[id];
-                saveChats();
-                renderSidebar();
-                renderMessages();
+            dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const action = item.dataset.action;
+                    if (action === 'rename') {
+                        const newTitle = prompt('Введите новое название чата:', title);
+                        if (newTitle && newTitle.trim() !== '') {
+                            chats[id].title = newTitle.trim();
+                            saveChats();
+                            renderSidebar();
+                        }
+                    } else if (action === 'delete') {
+                        if (confirm('Удалить этот чат?')) {
+                            delete chats[id];
+                            saveChats();
+                            renderSidebar();
+                            renderMessages();
+                        }
+                    }
+                    dropdown.classList.remove('open');
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!chatItem.contains(e.target)) {
+                    dropdown.classList.remove('open');
+                }
             });
         });
     }
 
+    function formatMessageContent(text) {
+        if (!text) return '';
+        text = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const parts = text.split(/(```[\s\S]*?```)/g);
+        let formatted = '';
+        parts.forEach(part => {
+            const codeMatch = part.match(/```(\w*)\n([\s\S]*?)```/);
+            if (codeMatch) {
+                const lang = codeMatch[1] || 'plaintext';
+                const codeContent = codeMatch[2];
+                const displayLang = lang === 'javascript' ? 'JavaScript' : lang.toUpperCase();
+                formatted += `
+                <div class="code-block-wrapper">
+                    <div class="code-header">
+                        <span class="code-lang">${displayLang}</span>
+                        <button class="copy-btn" onclick="copyCode(this)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            Копировать
+                        </button>
+                    </div>
+                    <pre><code class="language-${lang}">${codeContent}</code></pre>
+                </div>`;
+            } else {
+                formatted += part.replace(/\n/g, '<br>');
+            }
+        });
+        return formatted;
+    }
+
     function renderMessages() {
         messagesContainer.innerHTML = '';
-        if (!currentChatId || !chats[currentChatId] || chats[currentChatId].length === 0) {
+        
+        if (!currentChatId || !chats[currentChatId] || !chats[currentChatId].messages || chats[currentChatId].messages.length === 0) {
+            if (chatHeader) chatHeader.style.display = 'flex';
             const greetingWrapper = document.createElement('div');
             greetingWrapper.className = 'greeting-wrapper';
             greetingWrapper.innerHTML = `<div class="greeting-text">Чем я могу вам помочь?</div>`;
             messagesContainer.appendChild(greetingWrapper);
             return;
+        } else {
+            if (chatHeader) chatHeader.style.display = 'none';
         }
 
-        const chatMessages = chats[currentChatId];
+        const chatMessages = chats[currentChatId].messages;
         chatMessages.forEach(msg => {
             const wrapper = document.createElement('div');
             wrapper.className = `message-wrapper ${msg.type}`;
@@ -109,16 +240,20 @@ document.addEventListener('DOMContentLoaded', () => {
             wrapper.appendChild(sender);
             const msgDiv = document.createElement('div');
             msgDiv.className = `message ${msg.type}`;
-            msgDiv.innerText = msg.text;
+            msgDiv.innerHTML = formatMessageContent(msg.text);
             wrapper.appendChild(msgDiv);
             messagesContainer.appendChild(wrapper);
+        });
+
+        document.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
         });
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
     function createNewChat() {
         const newId = 'chat_' + Date.now();
-        chats[newId] = [];
+        chats[newId] = { title: 'Новый чат', messages: [] };
         currentChatId = newId;
         saveChats();
         renderSidebar();
@@ -127,17 +262,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addMessageToCurrentChat(type, text) {
-        if (!currentChatId || !chats[currentChatId]) return;
-        chats[currentChatId].push({ type, text });
+        if (!currentChatId || !chats[currentChatId]) return false;
+        if (!chats[currentChatId].messages) chats[currentChatId].messages = [];
+        chats[currentChatId].messages.push({ type, text });
+        if (type === 'user' && !chats[currentChatId].title) {
+            const short = text.length > 25 ? text.substring(0, 25) + '...' : text;
+            chats[currentChatId].title = short;
+        }
         saveChats();
         renderMessages();
         renderSidebar();
+        return true;
     }
 
     function addTypingIndicator() {
         const existing = document.getElementById('typing-wrapper');
         if(existing) existing.remove();
-
         const wrapper = document.createElement('div');
         wrapper.className = 'message-wrapper ai';
         wrapper.id = 'typing-wrapper';
@@ -164,11 +304,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleSendMessage() {
         const text = inputField.value.trim();
-        if (!text || !currentChatId) return;
+        if (!text || !currentChatId) {
+            console.warn("⚠️ Текст пуст или чат не выбран.");
+            return;
+        }
+
+        if (!isLoggedIn) {
+            addMessageToCurrentChat('ai', '⚠️ Пожалуйста, сначала зарегистрируйтесь (нажмите кнопку "Вход" внизу слева), чтобы пользоваться ИИ.');
+            inputField.value = '';
+            return;
+        }
 
         addMessageToCurrentChat('user', text);
         inputField.value = '';
         addTypingIndicator();
+
+        console.log("📤 Отправка запроса на:", WORKER_URL);
+
+        if (window.location.protocol === 'file:') {
+            setTimeout(() => {
+                removeTypingIndicator();
+                addMessageToCurrentChat('ai', '⚠️ Вы запустили файл локально. Браузер блокирует запросы к Cloudflare (CORS). Запустите через VS Code Live Server или загрузите на GitHub Pages.');
+                console.error("🚫 Блокировка CORS из-за file:// протокола.");
+            }, 500);
+            return;
+        }
 
         fetch(WORKER_URL, {
             method: 'POST',
@@ -176,28 +336,11 @@ document.addEventListener('DOMContentLoaded', () => {
             body: JSON.stringify({ message: text })
         })
         .then(async response => {
-            const rawText = await response.text();
-            console.log("✅ Полный ответ от Cloudflare:", rawText);
-
-            let data;
-            try {
-                data = JSON.parse(rawText);
-            } catch (e) {
-                throw new Error(`Ошибка парсинга JSON: ${rawText.substring(0, 100)}`);
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
             }
-
-            // ✅ УНИВЕРСАЛЬНАЯ ОБРАБОТКА ОШИБОК БЕЗ undefined
-            if (data.error) {
-                let errorMsg = "Неизвестная ошибка API";
-                if (typeof data.error === 'string') {
-                    errorMsg = data.error;
-                } else if (typeof data.error === 'object') {
-                    errorMsg = data.error.message || JSON.stringify(data.error);
-                }
-                throw new Error(`API Error: ${errorMsg}`);
-            }
-
-            return data;
+            return response.json();
         })
         .then(data => {
             removeTypingIndicator();
@@ -208,14 +351,81 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             removeTypingIndicator();
-            addMessageToCurrentChat('ai', "🚨 ОШИБКА:\n" + error.message);
+            const errorMsg = `❌ Ошибка связи с Cloudflare: ${error.message}`;
+            console.error(errorMsg);
+            addMessageToCurrentChat('ai', errorMsg);
         });
     }
 
-    loadChats();
-    if (Object.keys(chats).length === 0) createNewChat();
-    else { const ids = Object.keys(chats); currentChatId = ids[0]; renderSidebar(); renderMessages(); }
+    // 5. ЛОГИКА ВХОДА
+    document.getElementById('auth-submit-btn').addEventListener('click', function() {
+        console.log("🔑 Попытка входа...");
+        const email = document.getElementById('auth-email').value.trim();
+        if (!email) {
+            alert('Пожалуйста, введите Email');
+            return;
+        }
+        
+        const name = email.split('@')[0];
+        const avatarLetter = name.charAt(0).toUpperCase();
+        const userData = { username: name, email: email, avatar: avatarLetter };
+        localStorage.setItem('explow_user', JSON.stringify(userData));
+        isLoggedIn = true;
 
+        document.getElementById('user-name').innerText = name;
+        document.getElementById('user-avatar').innerText = avatarLetter;
+        document.getElementById('login-btn').style.display = 'none';
+        document.getElementById('user-profile').style.display = 'flex';
+        
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('main-chat-view').style.display = 'flex';
+        document.getElementById('sidebar').style.display = 'flex';
+        
+        console.log(`✅ Пользователь "${name}" вошел.`);
+    });
+
+    // 6. МЕНЮ ПРОФИЛЯ И ВЫХОД
+    document.getElementById('profile-dots').addEventListener('click', function(e) {
+        e.stopPropagation();
+        document.getElementById('profile-dropdown').classList.toggle('open');
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', function() {
+        localStorage.removeItem('explow_user');
+        isLoggedIn = false;
+        document.getElementById('user-profile').style.display = 'none';
+        document.getElementById('login-btn').style.display = 'flex';
+        document.getElementById('profile-dropdown').classList.remove('open');
+        console.log("👋 Выход выполнен.");
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.profile-dots-wrapper')) {
+            document.getElementById('profile-dropdown').classList.remove('open');
+        }
+    });
+
+    // 7. ИНИЦИАЛИЗАЦИЯ
+    loadChats();
+    if (Object.keys(chats).length === 0) {
+        createNewChat();
+        console.log("🆕 Создан первый чат.");
+    } else {
+        const ids = Object.keys(chats);
+        currentChatId = ids[0];
+        renderSidebar();
+        renderMessages();
+        console.log("📂 Загружены сохраненные чаты.");
+    }
+
+    // 8. КЛИК ПО КНОПКЕ ВХОДА
+    document.getElementById('login-btn').addEventListener('click', function() {
+        document.getElementById('main-chat-view').style.display = 'none';
+        document.getElementById('auth-screen').style.display = 'flex';
+        document.getElementById('sidebar').style.display = 'none';
+    });
+
+    // 9. ОБРАБОТЧИКИ СОБЫТИЙ ЧАТА
     newChatBtn.addEventListener('click', createNewChat);
     sendBtn.addEventListener('click', handleSendMessage);
     inputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSendMessage(); });
