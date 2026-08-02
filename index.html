@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>explow ai</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #0b0616;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .glow-left {
+            position: fixed;
+            bottom: 10vh;
+            left: -10%;
+            width: 60vw;
+            height: 60vh;
+            background: radial-gradient(circle, rgba(92, 51, 212, 0.4) 0%, transparent 70%);
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .glow-right {
+            position: fixed;
+            bottom: 10vh;
+            right: -5%;
+            width: 45vw;
+            height: 60vh;
+            background: radial-gradient(circle, rgba(137, 75, 255, 0.3) 0%, transparent 70%);
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .bg-dots {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 24px 24px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        #root {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            letter-spacing: -0.5px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 24px;
+            height: 24px;
+            display: block;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 12px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: opacity 0.2s, background 0.2s;
+        }
+
+        .btn-primary {
+            background: #8A55F7;
+            color: #fff;
+        }
+
+        .btn-primary:hover { opacity: 0.9; }
+
+        .btn-outline {
+            background: #25202e;
+            color: #b0b0b0;
+        }
+
+        .btn-outline:hover { background: #322b3d; color: #fff; }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 60px 30px;
+            max-width: 1300px;
+            margin: 0 auto;
+            flex: 1;
+            width: 100%;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 50%;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .badges {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge-new {
+            background: #8A55F7;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 5px 12px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .badge-link {
+            color: #b0b0b0;
+            font-size: 12px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge-link:hover { color: #fff; }
+
+        .hero h1 {
+            font-size: 4rem;
+            line-height: 1.1;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            color: #fff;
+            white-space: pre-wrap; 
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #9b9b9b;
+            max-width: 480px;
+        }
+
+        .btn-browse {
+            background: #8A55F7;
+            color: #fff;
+            font-size: 16px;
+            padding: 12px 28px;
+            border-radius: 8px;
+            width: fit-content;
+            font-weight: 500;
+        }
+
+        .code-wrapper {
+            width: 45%;
+            background: rgba(20, 15, 30, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            backdrop-filter: blur(24px) saturate(120%);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-header {
+            background: rgba(30, 25, 40, 0.25);
+            padding: 8px 16px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .code-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+
+        .code-body {
+            padding: 24px;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #e0e0e0;
+            position: relative;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        .kw { color: #c678dd; font-weight: 500; }
+        .str { color: #98c379; }
+        .func { color: #61afef; }
+        .var { color: #e5c07b; }
+        .prop { color: #abb2bf; }
+        .equal { color: #abb2bf; }
+        .val { color: #56b6c2; }
+
+        .code-indent-1 { padding-left: 16px; }
+        .code-indent-2 { padding-left: 32px; }
+        .code-indent-3 { padding-left: 48px; }
+
+        .code-footer {
+            padding: 8px 16px;
+            text-align: right;
+            font-size: 10px;
+            color: #5a5a5a;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .features-grid {
+            display: flex;
+            gap: 24px;
+            max-width: 1300px;
+            margin: 30px auto 80px auto;
+            padding: 0 30px;
+            width: 100%;
+        }
+
+        .feature-card {
+            flex: 1;
+            background: rgba(20, 15, 30, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 24px;
+            backdrop-filter: blur(4px);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .editor-dots {
+            display: flex;
+            gap: 6px;
+        }
+        .editor-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4a4a4a;
+        }
+        .editor-header-label {
+            font-size: 13px;
+            color: #a0a0a0;
+            font-weight: 500;
+        }
+
+        .editor-prompt {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        .editor-prompt span:first-child {
+            color: #7f7f7f;
+            margin-right: 10px;
+        }
+
+        .editor-code-block {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 6px;
+            padding: 14px;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: #c5c5c5;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .editor-line {
+            display: flex;
+            gap: 14px;
+        }
+        .editor-line-num {
+            color: #4a4a4a;
+            min-width: 16px;
+            text-align: right;
+            user-select: none;
+        }
+        
+        .editor-indent-1 { padding-left: 8px; }
+        .editor-indent-2 { padding-left: 16px; }
+
+        .ai-ready-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .ai-ready-section h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+        .ai-ready-section p {
+            font-size: 14px;
+            color: #9b9b9b;
+            line-height: 1.5;
+        }
+        .ai-ready-section span.bg-gray {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 1px 6px;
+            border-radius: 3px;
+            color: #d0d0d0;
+        }
+
+        .visual-editor-icons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0 30px 0;
+        }
+        .icon-block-row {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .icon-block {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .icon-block svg {
+            width: 24px;
+            height: 24px;
+            stroke: #a0a0a0;
+            stroke-width: 1.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .visual-editor-section {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 16px;
+        }
+        .visual-editor-section h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+        .visual-editor-section p {
+            font-size: 14px;
+            color: #9b9b9b;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 1024px) {
+            .hero { flex-direction: column; gap: 60px; padding: 40px 20px; align-items: flex-start; }
+            .hero-content { max-width: 100%; }
+            .code-wrapper { width: 100%; }
+            .hero h1 { font-size: 3rem; }
+            .features-grid { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-dots"></div>
+    <div class="glow-left"></div>
+    <div class="glow-right"></div>
+
+    <div id="root"></div>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { createElement: h } = React;
+
+        function App() {
+            return h('div', { className: 'layout' }, [
+                h('nav', { className: 'navbar', key: 'nav' }, [
+                    h('div', { className: 'navbar-left', key: 'left' }, [
+                        h('a', { href: '#', className: 'logo', key: 'logo' }, [
+                            h('img', { 
+                                src: 'https://raw.githubusercontent.com/DavidHDev/react-bits/d26ed7a476148f1253cca3f5bc9f679fda53e1f5/src/assets/logos/react-bits-logo-small.svg', 
+                                alt: 'explow ai logo'
+                            }),
+                            'explow ai'
+                        ])
+                    ]),
+                    h('div', { className: 'navbar-right', key: 'right' }, [
+                        h('button', { className: 'btn btn-primary', key: 'pro', onClick: () => window.location.href = '/register.html' }, 'SIGN UP'),
+                        h('button', { className: 'btn btn-outline', key: 'comm', onClick: () => window.location.href = '/register.html' }, 'SIGN IN')
+                    ])
+                ]),
+
+                h('section', { className: 'hero', key: 'hero' }, [
+                    h('div', { className: 'hero-content', key: 'content' }, [
+                        h('div', { className: 'badges', key: 'badges' }, [
+                            h('span', { className: 'badge-new', key: 'new' }, 'NEW AI FEATURE'),
+                            h('a', { href: '#', className: 'badge-link', key: 'option' }, 'LEARN MORE →')
+                        ]),
+                        h('h1', { key: 'title' }, 'The best AI right in your browser!'),
+                        h('p', { key: 'desc' }, 'Access powerful AI models directly from your browser. Instant, smart, and seamlessly integrated into your daily workflow.'),
+                        h('button', { className: 'btn btn-browse', key: 'cta', onClick: () => window.location.href = '/register.html' }, 'SIGN UP')
+                    ]),
+                    
+                    h('div', { className: 'code-wrapper', key: 'code' }, [
+                        h('div', { className: 'code-header', key: 'header' }, [
+                            h('div', { className: 'code-controls', key: 'controls' }, [
+                                h('span', { className: 'dot dot-red' }),
+                                h('span', { className: 'dot dot-yellow' }),
+                                h('span', { className: 'dot dot-green' })
+                            ])
+                        ]),
+                        h('div', { className: 'code-body', key: 'body' }, [
+                            h('div', { key: 'l1' }, h('span', { className: 'kw' }, 'import'), ' ', h('span', { className: 'func' }, '{ ColorBends }'), ' ', h('span', { className: 'kw' }, 'from'), ' ', h('span', { className: 'str' }, "'@components/ColorBends'"), ';'),
+                            h('br'),
+                            h('div', { key: 'l2' }, h('span', { className: 'kw' }, 'function'), ' ', h('span', { className: 'func' }, 'App'), '() {'),
+                            h('div', { className: 'code-indent-1', key: 'l3' }, h('span', { className: 'kw' }, 'return'), ' ('),
+                            h('div', { className: 'code-indent-2', key: 'l4' }, h('span', { className: 'func' }, '<ColorBends')),
+                            h('div', { className: 'code-indent-3', key: 'l5' }, h('span', { className: 'prop' }, 'color'), h('span', { className: 'equal' }, '='), h('span', { className: 'str' }, '"#8A55F7"')),
+                            h('div', { className: 'code-indent-3', key: 'l6' }, h('span', { className: 'prop' }, 'speed'), h('span', { className: 'equal' }, '='), h('span', { className: 'val' }, '{0.2}')),
+                            h('div', { className: 'code-indent-3', key: 'l7' }, h('span', { className: 'prop' }, 'frequency'), h('span', { className: 'equal' }, '='), h('span', { className: 'val' }, '{1.0}')),
+                            h('div', { className: 'code-indent-3', key: 'l8' }, h('span', { className: 'prop' }, 'noise'), h('span', { className: 'equal' }, '='), h('span', { className: 'val' }, '{0.15}')),
+                            h('div', { className: 'code-indent-3', key: 'l9' }, h('span', { className: 'prop' }, 'bandWidth'), h('span', { className: 'equal' }, '='), h('span', { className: 'val' }, '{0.14}')),
+                            h('div', { className: 'code-indent-3', key: 'l10' }, h('span', { className: 'prop' }, 'rotation'), h('span', { className: 'equal' }, '='), h('span', { className: 'val' }, '{90}')),
+                            h('div', { className: 'code-indent-3', key: 'l11' }, h('span', { className: 'prop' }, 'fadeTop'), h('span', { className: 'equal' }, '='), h('span', { className: 'val' }, '{0.75}')),
+                            h('div', { className: 'code-indent-3', key: 'l12' }, h('span', { className: 'prop' }, 'iterations'), h('span', { className: 'equal' }, '='), h('span', { className: 'val' }, '{1}')),
+                            h('div', { className: 'code-indent-3', key: 'l13' }, h('span', { className: 'prop' }, 'intensity'), h('span', { className: 'equal' }, '='), h('span', { className: 'val' }, '{1.3}')),
+                            h('div', { className: 'code-indent-2', key: 'l14' }, '/>'),
+                            h('div', { className: 'code-indent-1', key: 'l15' }, ');'),
+                            h('div', { key: 'l16' }, '}')
+                        ]),
+                        h('div', { className: 'code-footer', key: 'footer' }, 'Drag or click values to edit')
+                    ])
+                ]),
+
+                h('section', { className: 'features-grid', key: 'features' }, [
+                    h('div', { className: 'feature-card', key: 'card-editor' }, [
+                        h('div', { className: 'editor-header' }, [
+                            h('div', { className: 'editor-dots' }, [
+                                h('span', { key: '1' }),
+                                h('span', { key: '2' }),
+                                h('span', { key: '3' })
+                            ]),
+                            h('span', { className: 'editor-header-label' }, 'Editor')
+                        ]),
+                        h('div', { className: 'editor-prompt' }, [
+                            h('span', null, '$'),
+                            ' add a glowing card'
+                        ]),
+                        h('div', { className: 'editor-code-block' }, [
+                            h('div', { className: 'editor-line' }, [h('span', { className: 'editor-line-num' }, '1'), h('span', { className: 'editor-indent-1' }, h('span', { className: 'kw' }, 'import'), ' ', h('span', { className: 'func' }, 'BorderGlow'), ' ', h('span', { className: 'kw' }, 'from'), ' ', h('span', { className: 'str' }, '"./BorderGlow"'))]),
+                            h('div', { className: 'editor-line' }, [h('span', { className: 'editor-line-num' }, '2')]),
+                            h('div', { className: 'editor-line' }, [h('span', { className: 'editor-line-num' }, '3'), h('span', { className: 'editor-indent-1' }, h('span', { className: 'func' }, '<BorderGlow'), ' ', h('span', { className: 'prop' }, 'glowIntensity'), '=', h('span', { className: 'val' }, '{0.8}'), ' ', '/>')])
+                        ]),
+                        h('div', { className: 'ai-ready-section' }, [
+                            h('h4', null, 'AI-Ready'),
+                            h('p', null, [
+                                'Works great with ', h('span', { className: 'bg-gray' }, 'Cursor'), ', ', h('span', { className: 'bg-gray' }, 'Copilot'), ', and ', h('span', { className: 'bg-gray' }, 'v0'), '. Describe what you need, drop it in, ship.'
+                            ])
+                        ])
+                    ]),
+
+                    h('div', { className: 'feature-card', key: 'card-visual-editors' }, [
+                        h('div', { className: 'visual-editor-icons' }, [
+                            h('div', { className: 'icon-block' }, [
+                                h('svg', { viewBox: '0 0 24 24' }, [
+                                    h('circle', { cx: '12', cy: '12', r: '10' }),
+                                    h('circle', { cx: '7', cy: '12', r: '1.5', fill: '#a0a0a0' }),
+                                    h('circle', { cx: '17', cy: '12', r: '1.5', fill: '#a0a0a0' }),
+                                    h('circle', { cx: '12', cy: '7', r: '1.5', fill: '#a0a0a0' }),
+                                    h('circle', { cx: '12', cy: '17', r: '1.5', fill: '#a0a0a0' })
+                                ])
+                            ]),
+                            h('div', { className: 'icon-block-row' }, [
+                                h('div', { className: 'icon-block' }, [
+                                    h('svg', { viewBox: '0 0 24 24' }, [
+                                        h('path', { d: 'M12 2L2 7l10 5 10-5-10-5z' }),
+                                        h('path', { d: 'M2 17l10 5 10-5' }),
+                                        h('path', { d: 'M2 12l10 5 10-5' })
+                                    ])
+                                ]),
+                                h('div', { className: 'icon-block' }, [
+                                    h('svg', { viewBox: '0 0 24 24' }, [
+                                        h('rect', { x: '3', y: '3', width: '18', height: '18', rx: '2', ry: '2' }),
+                                        h('circle', { cx: '8.5', cy: '8.5', r: '1.5', fill: '#a0a0a0' }),
+                                        h('polyline', { points: '21 15 16 10 5 21' })
+                                    ])
+                                ])
+                            ])
+                        ]),
+                        h('div', { className: 'visual-editor-section' }, [
+                            h('h4', null, 'Visual Editors'),
+                            h('p', null, 'Three free tools to play with components and grab the code.')
+                        ])
+                    ])
+
+                ])
+            ]);
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(h(App));
+    </script>
+</body>
+</html>
