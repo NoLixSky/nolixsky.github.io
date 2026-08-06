@@ -12,10 +12,8 @@ window.copyCode = function(btn) {
             });
         } else {
             const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
+            textarea.value = text; document.body.appendChild(textarea);
+            textarea.select(); document.execCommand('copy');
             document.body.removeChild(textarea);
             const orig = btn.innerHTML;
             btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Скопировано!`;
@@ -25,93 +23,52 @@ window.copyCode = function(btn) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("✅ Скрипт загружен!");
+    console.log("✅ Чат загружен!");
 
-    // ======== СЛОВАРЬ ПЕРЕВОДОВ ========
     const translations = {
-        en: {
-            new_chat: 'New chat',
-            how_can_i_help: 'How can I help you?',
-            write_your_request: 'Write your request...',
-            log_in: 'Log in',
-            settings: 'Settings',
-            log_out: 'Log out',
-            account_settings: 'Account settings',
-            change_profile_details: 'Change your profile details',
-            username: 'Username',
-            password: 'Password',
-            interface_language: 'Interface language',
-            change_password: 'Change password',
-            save_password: 'Save password',
-            save: 'Save',
-            cancel: 'Cancel',
-            delete_chat: 'Delete chat',
-            delete_title: 'Chat cannot be restored after deletion',
-            delete_desc: 'Shared links will become invalid.',
-            rename_title: 'Rename chat',
-            rename_desc: 'Enter a new name for this chat.',
-            new_chat_name_placeholder: 'New chat name...',
-            log_in_sign_up: 'Log in / Sign up',
-            reg_desc: 'Enter your details to log in to your account',
-            logout_title: 'Log out of account',
-            logout_desc: 'Are you sure you want to log out of your account?',
-            log_out_confirm: 'Log out',
-            you: 'You',
-            quick: 'Quick',
-            expert: 'Expert'
-        },
         ru: {
-            new_chat: 'Новый чат',
-            how_can_i_help: 'Чем я могу вам помочь?',
-            write_your_request: 'Напишите ваш запрос...',
-            log_in: 'Войти',
-            settings: 'Настройки',
-            log_out: 'Выйти',
-            account_settings: 'Настройки аккаунта',
-            change_profile_details: 'Измените данные вашего профиля',
-            username: 'Имя пользователя',
-            password: 'Пароль',
-            interface_language: 'Язык интерфейса',
-            change_password: 'Сменить пароль',
-            save_password: 'Сохранить пароль',
-            save: 'Сохранить',
-            cancel: 'Отмена',
-            delete_chat: 'Удалить чат',
-            delete_title: 'После удаления чат невозможно восстановить',
-            delete_desc: 'Ссылки для общего доступа станут недействительными.',
-            rename_title: 'Переименовать чат',
-            rename_desc: 'Введите новое название для этого чата.',
-            new_chat_name_placeholder: 'Новое название чата...',
-            log_in_sign_up: 'Вход / Регистрация',
-            reg_desc: 'Введите свои данные для входа в аккаунт',
-            logout_title: 'Выход из аккаунта',
-            logout_desc: 'Вы действительно хотите выйти из аккаунта?',
-            log_out_confirm: 'Выйти',
-            you: 'Вы',
-            quick: 'Быстрый',
-            expert: 'Эксперт'
+            new_chat: 'Новый чат', how_can_i_help: 'Чем я могу вам помочь?',
+            write_your_request: 'Напишите ваш запрос...', log_in: 'Войти',
+            settings: 'Настройки', log_out: 'Выйти',
+            account_settings: 'Настройки аккаунта', change_profile_details: 'Измените данные вашего профиля',
+            username: 'Имя пользователя', password: 'Пароль', interface_language: 'Язык интерфейса',
+            change_password: 'Сменить пароль', save_password: 'Сохранить пароль',
+            save: 'Сохранить', cancel: 'Отмена', delete_chat: 'Удалить чат',
+            delete_title: 'После удаления чат невозможно восстановить', delete_desc: 'Ссылки для общего доступа станут недействительными.',
+            rename_title: 'Переименовать чат', rename_desc: 'Введите новое название для этого чата.',
+            new_chat_name_placeholder: 'Новое название чата...', log_in_sign_up: 'Вход / Регистрация',
+            reg_desc: 'Введите свои данные для входа в аккаунт', logout_title: 'Выход из аккаунта',
+            logout_desc: 'Вы действительно хотите выйти из аккаунта?', log_out_confirm: 'Выйти',
+            you: 'Вы', quick: 'Быстрый', expert: 'Эксперт'
+        },
+        en: {
+            new_chat: 'New chat', how_can_i_help: 'How can I help you?',
+            write_your_request: 'Write your request...', log_in: 'Log in',
+            settings: 'Settings', log_out: 'Log out',
+            account_settings: 'Account settings', change_profile_details: 'Change your profile details',
+            username: 'Username', password: 'Password', interface_language: 'Interface language',
+            change_password: 'Change password', save_password: 'Save password',
+            save: 'Save', cancel: 'Cancel', delete_chat: 'Delete chat',
+            delete_title: 'Chat cannot be restored after deletion', delete_desc: 'Shared links will become invalid.',
+            rename_title: 'Rename chat', rename_desc: 'Enter a new name for this chat.',
+            new_chat_name_placeholder: 'New chat name...', log_in_sign_up: 'Log in / Sign up',
+            reg_desc: 'Enter your details to log in to your account', logout_title: 'Log out of account',
+            logout_desc: 'Are you sure you want to log out of your account?', log_out_confirm: 'Log out',
+            you: 'You', quick: 'Quick', expert: 'Expert'
         }
     };
 
-    // ======== ПОЛУЧАЕМ ЭЛЕМЕНТЫ ========
     const chatHistory = document.getElementById('chat-history');
     const messagesContainer = document.getElementById('messages-container');
     const inputField = document.getElementById('input-field');
     const sendBtn = document.getElementById('send-btn');
     const newChatBtn = document.getElementById('new-chat-btn');
 
-    // ======== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ========
-    let chats = {};
-    let currentChatId = null;
-    let pendingChatActionId = null;
-    let isLoggedIn = false;
-    let selectedModel = 'quick';
-
+    let chats = {}, currentChatId = null, pendingChatActionId = null, isLoggedIn = false, selectedModel = 'quick';
     const STORAGE_KEY = 'explow_chat_data';
     const WORKER_URL_QUICK = 'https://explow-proxy.avatarsale75.workers.dev';
     const WORKER_URL_EXPERT = 'https://explow-proxy-expert.avatarsale75.workers.dev';
 
-    // ======== ЗАГРУЗКА ПРОФИЛЯ ========
     function loadProfile() {
         const saved = localStorage.getItem('explow_user');
         if (saved) {
@@ -122,89 +79,62 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('btn-register').style.display = 'none';
                 document.getElementById('user-profile').style.display = 'flex';
                 isLoggedIn = true;
-                console.log("✅ Профиль загружен:", data.username);
                 return data;
-            } catch (e) {
-                localStorage.removeItem('explow_user');
-            }
+            } catch(e) { localStorage.removeItem('explow_user'); }
         }
         return null;
     }
     let userData = loadProfile();
 
-    // ======== ОБНОВЛЕНИЕ ЯЗЫКА UI ========
     function updateUILanguage(lang) {
-        const t = translations[lang] || translations['en'];
-
+        const t = translations[lang] || translations['ru'];
         document.getElementById('btn-new-chat-text').innerText = t.new_chat;
         document.getElementById('btn-login-text').innerText = t.log_in;
         document.getElementById('settings-btn-text').innerText = t.settings;
         document.getElementById('logout-btn-text').innerText = t.log_out;
-
         document.getElementById('input-field').placeholder = t.write_your_request;
-
         document.getElementById('modal-delete-title').innerText = t.delete_title;
         document.getElementById('modal-delete-desc').innerText = t.delete_desc;
         document.getElementById('delete-btn-text').innerText = t.delete_chat;
-
         document.getElementById('modal-rename-title').innerText = t.rename_title;
         document.getElementById('modal-rename-desc').innerText = t.rename_desc;
         document.getElementById('modal-rename-input').placeholder = t.new_chat_name_placeholder;
-
         document.getElementById('reg-modal-title').innerText = t.log_in_sign_up;
         document.getElementById('reg-modal-desc').innerText = t.reg_desc;
         document.getElementById('login-btn-modal-text').innerText = t.log_in;
-
         document.getElementById('settings-modal-title').innerText = t.account_settings;
         document.getElementById('settings-modal-desc').innerText = t.change_profile_details;
         document.getElementById('settings-nickname-label').innerText = t.username;
         document.getElementById('settings-password-label').innerText = t.password;
         document.getElementById('settings-lang-label').innerText = t.interface_language;
-
         document.querySelectorAll('#cancel-btn-text').forEach(el => el.innerText = t.cancel);
         document.querySelectorAll('#save-btn-text').forEach(el => el.innerText = t.save);
         document.getElementById('change-pass-btn-text').innerText = t.change_password;
-
         document.getElementById('logout-modal-title').innerText = t.logout_title;
         document.getElementById('logout-modal-desc').innerText = t.logout_desc;
         document.getElementById('logout-confirm-btn-text').innerText = t.log_out_confirm;
-
-        const quickText = document.querySelector('#model-quick .model-text');
-        const expertText = document.querySelector('#model-expert .model-text');
-        if (quickText) quickText.innerText = t.quick;
-        if (expertText) expertText.innerText = t.expert;
-
-        renderSidebar();
         
+        renderSidebar();
         if (!currentChatId || !chats[currentChatId] || !chats[currentChatId].messages || chats[currentChatId].messages.length === 0) {
             renderMessages();
         }
     }
 
-    // ======== ЗАГРУЗКА ЧАТОВ ========
     function loadChats() {
         const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            try { chats = JSON.parse(saved); } catch (e) { chats = {}; }
-        } else {
-            chats = {};
-        }
+        if (saved) { try { chats = JSON.parse(saved); } catch(e) { chats = {}; } }
+        else { chats = {}; }
         for (const key in chats) {
             if (Array.isArray(chats[key])) {
-                chats[key] = { title: 'New chat', messages: chats[key] };
+                chats[key] = { title: 'Новый чат', messages: chats[key] };
             }
         }
     }
+    function saveChats() { localStorage.setItem(STORAGE_KEY, JSON.stringify(chats)); }
 
-    function saveChats() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(chats));
-    }
-
-    // ======== ОТРИСОВКА МЕНЮ ========
     function renderSidebar() {
-        const currentLang = userData ? userData.language : 'en';
-        const t = translations[currentLang] || translations['en'];
-
+        const currentLang = userData ? userData.language : 'ru';
+        const t = translations[currentLang] || translations['ru'];
         chatHistory.innerHTML = '';
         const ids = Object.keys(chats);
         if (ids.length === 0) { currentChatId = null; }
@@ -221,14 +151,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const firstUserMsg = chatData.messages.find(m => m.type === 'user');
                 if (firstUserMsg) {
                     title = firstUserMsg.text.length > 25 ? firstUserMsg.text.substring(0, 25) + '...' : firstUserMsg.text;
-                    chatData.title = title;
-                    saveChats();
+                    chatData.title = title; saveChats();
                 }
             }
 
             const chatText = document.createElement('span');
-            chatText.className = 'chat-text';
-            chatText.innerText = title;
+            chatText.className = 'chat-text'; chatText.innerText = title;
             
             const dotsWrapper = document.createElement('div');
             dotsWrapper.className = 'dots-wrapper';
@@ -249,10 +177,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
 
-            dotsWrapper.appendChild(dots);
-            dotsWrapper.appendChild(dropdown);
-            chatItem.appendChild(chatText);
-            chatItem.appendChild(dotsWrapper);
+            dotsWrapper.appendChild(dots); dotsWrapper.appendChild(dropdown);
+            chatItem.appendChild(chatText); chatItem.appendChild(dotsWrapper);
             chatHistory.appendChild(chatItem);
 
             dots.addEventListener('click', (e) => {
@@ -271,31 +197,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const deleteBtn = dropdown.querySelector('[data-action="delete"]');
             deleteBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                dropdown.classList.remove('open');
+                e.stopPropagation(); dropdown.classList.remove('open');
                 pendingChatActionId = id;
                 document.getElementById('modal-delete').classList.add('active');
             });
 
             const renameBtn = dropdown.querySelector('[data-action="rename"]');
             renameBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                dropdown.classList.remove('open');
+                e.stopPropagation(); dropdown.classList.remove('open');
                 pendingChatActionId = id;
-                const currentTitle = chats[id].title || t.new_chat;
-                document.getElementById('modal-rename-input').value = currentTitle;
+                document.getElementById('modal-rename-input').value = chats[id].title || t.new_chat;
                 document.getElementById('modal-rename').classList.add('active');
             });
 
             document.addEventListener('click', (e) => {
-                if (!chatItem.contains(e.target)) {
-                    dropdown.classList.remove('open');
-                }
+                if (!chatItem.contains(e.target)) { dropdown.classList.remove('open'); }
             });
         });
     }
 
-    // ======== ФОРМАТИРОВАНИЕ И ОТРИСОВКА СООБЩЕНИЙ ========
     function formatMessageContent(text) {
         if (!text) return '';
         text = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -330,20 +250,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderMessages() {
         messagesContainer.innerHTML = '';
-        
-        const currentLang = userData ? userData.language : 'en';
-        const t = translations[currentLang] || translations['en'];
+        const currentLang = userData ? userData.language : 'ru';
+        const t = translations[currentLang] || translations['ru'];
 
         if (!currentChatId || !chats[currentChatId] || !chats[currentChatId].messages || chats[currentChatId].messages.length === 0) {
             document.getElementById('chat-header').style.display = 'flex';
-            
             const wrapper = document.createElement('div');
             wrapper.className = 'greeting-wrapper';
-            wrapper.style.display = 'flex';
-            wrapper.style.flexDirection = 'column';
-            wrapper.style.alignItems = 'center';
-            wrapper.style.justifyContent = 'center';
-            wrapper.style.gap = '16px';
 
             const greetingText = document.createElement('div');
             greetingText.className = 'greeting-text';
@@ -365,10 +278,8 @@ document.addEventListener('DOMContentLoaded', function() {
             btnExpert.innerHTML = `<svg viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9l4-6z"/><circle cx="12" cy="12" r="3"/></svg><span class="model-text">${t.expert}</span>`;
             btnExpert.addEventListener('click', () => switchModel('expert'));
             
-            switcher.appendChild(btnQuick);
-            switcher.appendChild(btnExpert);
+            switcher.appendChild(btnQuick); switcher.appendChild(btnExpert);
             wrapper.appendChild(switcher);
-
             messagesContainer.appendChild(wrapper);
             return;
         } else {
@@ -396,21 +307,15 @@ document.addEventListener('DOMContentLoaded', function() {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    // ======== СОЗДАНИЕ НОВОГО ЧАТА ========
     function createNewChat() {
-        const currentLang = userData ? userData.language : 'en';
-        const t = translations[currentLang] || translations['en'];
-        
+        const currentLang = userData ? userData.language : 'ru';
+        const t = translations[currentLang] || translations['ru'];
         const newId = 'chat_' + Date.now();
         chats[newId] = { title: t.new_chat, messages: [] };
         currentChatId = newId;
-        saveChats();
-        renderSidebar();
-        renderMessages();
-        inputField.focus();
+        saveChats(); renderSidebar(); renderMessages(); inputField.focus();
     }
 
-    // ======== ПЕРЕКЛЮЧЕНИЕ МОДЕЛЕЙ ========
     function switchModel(model) {
         selectedModel = model;
         const quickBtn = document.getElementById('model-quick');
@@ -422,7 +327,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("🔄 Модель переключена на:", model);
     }
 
-    // ======== ДОБАВЛЕНИЕ СООБЩЕНИЯ И ИНДИКАТОР ========
     function addMessageToCurrentChat(type, text) {
         if (!currentChatId || !chats[currentChatId]) return;
         if (!chats[currentChatId].messages) chats[currentChatId].messages = [];
@@ -431,9 +335,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const short = text.length > 25 ? text.substring(0, 25) + '...' : text;
             chats[currentChatId].title = short;
         }
-        saveChats();
-        renderMessages();
-        renderSidebar();
+        saveChats(); renderMessages(); renderSidebar();
     }
 
     function addTypingIndicator() {
@@ -450,8 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
         indicator.className = 'typing-indicator';
         for (let i = 0; i < 3; i++) {
             const dot = document.createElement('span');
-            dot.className = 'typing-dot';
-            indicator.appendChild(dot);
+            dot.className = 'typing-dot'; indicator.appendChild(dot);
         }
         wrapper.appendChild(indicator);
         messagesContainer.appendChild(wrapper);
@@ -463,26 +364,22 @@ document.addEventListener('DOMContentLoaded', function() {
         if (wrapper) wrapper.remove();
     }
 
-    // ======== СИСТЕМНЫЙ ПРОМПТ ========
     function getSystemPrompt() {
         const user = localStorage.getItem('explow_user');
-        let lang = 'en';
-        if (user) {
-            try { lang = JSON.parse(user).language || 'en'; } catch(e) {}
-        }
+        let lang = 'ru';
+        if (user) { try { lang = JSON.parse(user).language || 'ru'; } catch(e) {} }
         return lang === 'ru' 
-            ? 'Ты — ИИ-помощник explow. Отвечай строго на русском языке. Будь максимально кратким и лаконичным.' 
-            : 'You are an AI assistant explow. Reply strictly in English. Be extremely concise.';
+            ? 'Ты — ИИ-помощник explow. Отвечай строго на русском языке. Будь кратким.' 
+            : 'You are an AI assistant explow. Reply strictly in English. Be concise.';
     }
 
-    // ======== ОТПРАВКА СООБЩЕНИЯ ========
     function handleSendMessage() {
         const text = inputField.value.trim();
         if (!text) return;
 
         if (!isLoggedIn) {
-            const currentLang = userData ? userData.language : 'en';
-            const t = translations[currentLang] || translations['en'];
+            const currentLang = userData ? userData.language : 'ru';
+            const t = translations[currentLang] || translations['ru'];
             addMessageToCurrentChat('ai', `⚠️ ${t.log_in} first.`);
             inputField.value = '';
             return;
@@ -494,6 +391,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const targetUrl = selectedModel === 'quick' ? WORKER_URL_QUICK : WORKER_URL_EXPERT;
         const systemPrompt = getSystemPrompt();
+
+        if (window.location.protocol === 'file:') {
+            setTimeout(() => {
+                removeTypingIndicator();
+                const demoReply = `Ответ от модели **${selectedModel === 'quick' ? 'Быстрый' : 'Эксперт'}**!\n\n\`\`\`html\n<h1>Демо-режим</h1>\n<p>Ваши воркеры подключены корректно.</p>\n\`\`\``;
+                addMessageToCurrentChat('ai', demoReply);
+            }, 800);
+            return;
+        }
 
         fetch(targetUrl, {
             method: 'POST',
@@ -511,16 +417,48 @@ document.addEventListener('DOMContentLoaded', function() {
             removeTypingIndicator();
             const aiText = data.choices && data.choices.length > 0 
                 ? data.choices[0].message.content 
-                : "⚠️ Сервер вернул пустой ответ.";
+                : "⚠️ Пустой ответ.";
             addMessageToCurrentChat('ai', aiText);
         })
         .catch(error => {
             removeTypingIndicator();
-            addMessageToCurrentChat('ai', `❌ Ошибка связи с Cloudflare: ${error.message}`);
+            addMessageToCurrentChat('ai', `❌ Ошибка: ${error.message}`);
         });
     }
 
-    // ======== КНОПКИ ВХОДА / РЕГИСТРАЦИИ ========
+    // ==================== МОДАЛЬНЫЕ ОКНА (ЛОГИКА) ====================
+    function closeModal() {
+        document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
+        pendingChatActionId = null;
+    }
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    });
+
+    document.getElementById('modal-delete-cancel').addEventListener('click', closeModal);
+    document.getElementById('modal-delete-confirm').addEventListener('click', function() {
+        if (pendingChatActionId) {
+            delete chats[pendingChatActionId];
+            pendingChatActionId = null;
+            saveChats(); renderSidebar(); renderMessages();
+        }
+        closeModal();
+    });
+
+    document.getElementById('modal-rename-cancel').addEventListener('click', closeModal);
+    document.getElementById('modal-rename-confirm').addEventListener('click', function() {
+        const newTitle = document.getElementById('modal-rename-input').value.trim();
+        if (pendingChatActionId && newTitle) {
+            chats[pendingChatActionId].title = newTitle;
+            pendingChatActionId = null;
+            saveChats(); renderSidebar();
+        }
+        closeModal();
+    });
+
+    // ==================== ВХОД / РЕГИСТРАЦИЯ ====================
     document.getElementById('btn-register').addEventListener('click', () => {
         document.getElementById('modal-register').classList.add('active');
     });
@@ -531,18 +469,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('modal-register-confirm').addEventListener('click', () => {
         const email = document.getElementById('reg-email').value.trim();
-        if (!email) {
-            alert('Enter Email');
-            return;
-        }
+        const password = document.getElementById('reg-password').value.trim();
+        if (!email) { alert('Введите Email'); return; }
+        if (!password) { alert('Пароль обязателен'); return; }
         const name = email.split('@')[0];
         const avatar = name.charAt(0).toUpperCase();
         userData = {
-            username: name,
-            email: email,
-            password: document.getElementById('reg-password').value.trim(),
-            avatar: avatar,
-            language: 'en'
+            username: name, email: email, password: password, avatar: avatar, language: 'ru'
         };
         localStorage.setItem('explow_user', JSON.stringify(userData));
         isLoggedIn = true;
@@ -552,39 +485,28 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('btn-register').style.display = 'none';
         document.getElementById('user-profile').style.display = 'flex';
         document.getElementById('modal-register').classList.remove('active');
-        
-        updateUILanguage('en');
-        console.log("✅ Регистрация успешна:", userData);
+        updateUILanguage('ru');
     });
 
-    // ======== НАСТРОЙКИ ========
+    // ==================== НАСТРОЙКИ ====================
     let isPasswordEditMode = false;
 
     document.getElementById('settings-btn').addEventListener('click', (e) => {
         e.stopPropagation();
         document.getElementById('profile-dropdown').classList.remove('open');
-        if (!userData) {
-            alert('Please log in first.');
-            return;
-        }
+        if (!userData) { alert('Сначала войдите в аккаунт.'); return; }
         document.getElementById('settings-nickname').value = userData.username;
-        document.getElementById('settings-language').value = userData.language || 'en';
-        
+        document.getElementById('settings-language').value = userData.language || 'ru';
         const display = document.getElementById('password-display');
         const input = document.getElementById('settings-password');
         const btn = document.getElementById('toggle-pass-btn');
         display.style.display = 'block';
         input.style.display = 'none';
         input.value = '';
-        const t = translations[userData.language] || translations['en'];
+        const t = translations[userData.language] || translations['ru'];
         document.getElementById('change-pass-btn-text').innerText = t.change_password;
         isPasswordEditMode = false;
-        if (userData.password) {
-            display.innerText = '••••••••';
-        } else {
-            display.innerText = 'Password not set';
-        }
-
+        if (userData.password) { display.innerText = '••••••••'; } else { display.innerText = 'Не установлен'; }
         document.getElementById('modal-settings').classList.add('active');
     });
 
@@ -592,18 +514,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const display = document.getElementById('password-display');
         const input = document.getElementById('settings-password');
         const btn = document.getElementById('toggle-pass-btn');
-        const t = translations[userData.language] || translations['en'];
-
+        const t = translations[userData.language] || translations['ru'];
         if (!isPasswordEditMode) {
-            display.style.display = 'none';
-            input.style.display = 'block';
-            input.value = '';
-            input.focus();
+            display.style.display = 'none'; input.style.display = 'block';
+            input.value = ''; input.focus();
             document.getElementById('change-pass-btn-text').innerText = t.save_password;
             isPasswordEditMode = true;
         } else {
-            display.style.display = 'block';
-            input.style.display = 'none';
+            display.style.display = 'block'; input.style.display = 'none';
             document.getElementById('change-pass-btn-text').innerText = t.change_password;
             isPasswordEditMode = false;
         }
@@ -615,19 +533,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('modal-settings-save').addEventListener('click', () => {
         const newNick = document.getElementById('settings-nickname').value.trim();
-        if (!newNick) {
-            alert('Username cannot be empty.');
-            return;
-        }
+        if (!newNick) { alert('Имя пользователя не может быть пустым.'); return; }
         const newLang = document.getElementById('settings-language').value;
-        
         const passInput = document.getElementById('settings-password');
         let newPass = userData.password;
         if (passInput.style.display === 'block') {
             const trimmedPass = passInput.value.trim();
             if (trimmedPass) newPass = trimmedPass;
         }
-
         userData.username = newNick;
         userData.avatar = newNick.charAt(0).toUpperCase();
         userData.password = newPass;
@@ -636,12 +549,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('user-name').innerText = newNick;
         document.getElementById('user-avatar').innerText = newNick.charAt(0).toUpperCase();
         document.getElementById('modal-settings').classList.remove('active');
-        
         updateUILanguage(newLang);
-        console.log("✅ Настройки сохранены:", userData);
     });
 
-    // ======== ВЫХОД ========
+    // ==================== ВЫХОД ====================
     document.getElementById('logout-btn').addEventListener('click', (e) => {
         e.stopPropagation();
         document.getElementById('profile-dropdown').classList.remove('open');
@@ -654,16 +565,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('modal-logout-confirm').addEventListener('click', () => {
         localStorage.removeItem('explow_user');
-        isLoggedIn = false;
-        userData = null;
+        isLoggedIn = false; userData = null;
         document.getElementById('user-profile').style.display = 'none';
         document.getElementById('btn-register').style.display = 'flex';
         document.getElementById('modal-logout').classList.remove('active');
-        updateUILanguage('en');
-        console.log("👋 Выход выполнен");
+        updateUILanguage('ru');
     });
 
-    // ======== МЕНЮ ПРОФИЛЯ ========
+    // ==================== ПРОФИЛЬ МЕНЮ ====================
     document.getElementById('profile-dots').addEventListener('click', (e) => {
         e.stopPropagation();
         document.getElementById('profile-dropdown').classList.toggle('open');
@@ -675,60 +584,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // ======== УДАЛЕНИЕ И ПЕРЕИМЕНОВАНИЕ ========
-    document.getElementById('modal-delete-cancel').addEventListener('click', () => {
-        document.getElementById('modal-delete').classList.remove('active');
-    });
-
-    document.getElementById('modal-delete-confirm').addEventListener('click', () => {
-        if (pendingChatActionId) {
-            delete chats[pendingChatActionId];
-            pendingChatActionId = null;
-            saveChats();
-            renderSidebar();
-            renderMessages();
-        }
-        document.getElementById('modal-delete').classList.remove('active');
-    });
-
-    document.getElementById('modal-rename-cancel').addEventListener('click', () => {
-        document.getElementById('modal-rename').classList.remove('active');
-    });
-
-    document.getElementById('modal-rename-confirm').addEventListener('click', () => {
-        const newTitle = document.getElementById('modal-rename-input').value.trim();
-        if (pendingChatActionId && newTitle) {
-            chats[pendingChatActionId].title = newTitle;
-            pendingChatActionId = null;
-            saveChats();
-            renderSidebar();
-        }
-        document.getElementById('modal-rename').classList.remove('active');
-    });
-
-    // ======== ИНИЦИАЛИЗАЦИЯ ========
+    // ==================== ИНИЦИАЛИЗАЦИЯ ====================
     loadChats();
-    if (Object.keys(chats).length === 0) {
-        createNewChat();
-    } else {
+    if (Object.keys(chats).length === 0) { createNewChat(); }
+    else {
         const ids = Object.keys(chats);
         currentChatId = ids[0];
         renderSidebar();
         renderMessages();
     }
 
-    if (userData) {
-        updateUILanguage(userData.language || 'en');
-    } else {
-        updateUILanguage('en');
-    }
+    // По умолчанию язык интерфейса — русский
+    if (userData) { updateUILanguage(userData.language || 'ru'); } else { updateUILanguage('ru'); }
 
-    // ======== ОБРАБОТЧИКИ ========
     newChatBtn.addEventListener('click', createNewChat);
     sendBtn.addEventListener('click', handleSendMessage);
     inputField.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleSendMessage();
     });
 
-    console.log("✅ Всё готово! Наслаждайтесь.");
+    console.log("✅ Все системы готовы!");
 });
