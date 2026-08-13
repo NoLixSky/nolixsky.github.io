@@ -69,10 +69,15 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch(e) { console.log("Ошибка загрузки профиля"); }
     }
 
+    // ================================================================
+    // ФУНКЦИЯ СБРОСА (возвращает логотип и кнопки, скрывает чат)
+    // ================================================================
     window.resetChat = function() {
         chatArea.innerHTML = '';
-        chatArea.classList.remove('active');
+        // Показываем главный экран (лого + кнопки), скрываем чат
         mainContainer.style.display = 'flex';
+        chatArea.style.display = 'none';
+        chatArea.classList.remove('active');
         isChatActive = false;
         inputField.value = '';
         inputField.placeholder = 'Введите запрос...';
@@ -119,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
         reader.onload = function(e) {
             if (!isChatActive) {
                 mainContainer.style.display = 'none';
+                chatArea.style.display = 'flex';
                 chatArea.classList.add('active');
                 isChatActive = true;
             }
@@ -156,7 +162,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="code-block-wrapper">
                     <div class="code-header">
                         <span class="code-lang">${displayLang}</span>
-                        <button class="copy-btn" onclick="copyToClipboard(this)">📋 Копировать</button>
                     </div>
                     <pre><code class="language-${lang}">${code}</code></pre>
                 </div>`;
@@ -213,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
         chatArea.scrollTop = chatArea.scrollHeight;
 
         if (type === 'ai') {
-            chatArea.querySelectorAll('.ai-content pre code').forEach(block => hljs.highlightElement(block));
+            chatArea.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
         }
     }
 
@@ -232,8 +237,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const text = inputField.value.trim();
         if (!text) return;
 
+        // Если чат ещё не активен — убираем логотип и показываем чат
         if (!isChatActive) {
             mainContainer.style.display = 'none';
+            chatArea.style.display = 'flex';
             chatArea.classList.add('active');
             isChatActive = true;
         }
@@ -290,5 +297,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    resetChat();
+    // ✅ ИНИЦИАЛИЗАЦИЯ: при загрузке показываем логотип, чат скрыт
+    mainContainer.style.display = 'flex';
+    chatArea.style.display = 'none';
+    chatArea.classList.remove('active');
+    isChatActive = false;
+    renderRecentChats();
+
 });
