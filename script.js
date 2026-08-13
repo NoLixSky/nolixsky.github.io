@@ -50,6 +50,14 @@ document.addEventListener('DOMContentLoaded', function() {
     let isChatActive = false;
     let recentChats = [];
 
+    // ================================================================
+    // ВАШИ РАБОЧИЕ АДРЕСА CLOUDFLARE WORKERS
+    // ================================================================
+    const WORKER_URL_QUICK = 'https://explow-proxy.avatarsale75.workers.dev/';
+    const WORKER_URL_EXPERT = 'https://explow-proxy-expert.avatarsale75.workers.dev/';
+
+    // ================================================================
+
     // ЗАГРУЗКА ПРОФИЛЯ ИЗ LOCALSTORAGE
     const savedUser = localStorage.getItem('explow_user');
     if (savedUser) {
@@ -209,6 +217,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Системный промпт
+    function getSystemPrompt() {
+        const user = localStorage.getItem('explow_user');
+        let lang = 'ru';
+        if (user) { try { lang = JSON.parse(user).language || 'ru'; } catch(e) {} }
+        return lang === 'ru' 
+            ? 'Ты — ИИ-помощник explow. Отвечай строго на русском языке. Будь кратким.' 
+            : 'You are an AI assistant explow. Reply strictly in English. Be concise.';
+    }
+
+    // ========== ГЛАВНАЯ ФУНКЦИЯ ОТПРАВКИ ЗАПРОСА К ИИ ==========
     function handleSend() {
         const text = inputField.value.trim();
         if (!text) return;
@@ -223,12 +242,34 @@ document.addEventListener('DOMContentLoaded', function() {
         inputField.value = '';
         inputField.style.height = '24px';
 
-        setTimeout(() => {
-            const model = currentModel === 'Быстрый' ? 'быстрой' : 'экспертной';
-            const demoReply = `Ответ от ${model} модели.\n\nВаш запрос: "${text}"\n\n\`\`\`javascript\n// Пример кода\nconsole.log("Привет из EXPLOW!");\n\`\`\``;
-            addMessage('ai', demoReply);
-        }, 800);
+        const targetUrl = currentModel === 'Быстрый' ? WORKER_URL_QUICK : WORKER_URL_EXPERT;
+        const systemPrompt = getSystemPrompt();
+
+        // ОТПРАВКА В CLOUDFLARE WORKER
+        fetch(targetUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text, system_prompt: systemPrompt })
+        })
+        .then(async response => {
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const aiText = data.choices && data.choices.length > 0 
+                ? data.choices[0].message.content 
+                : "⚠️ Пустой ответ от ИИ.";
+            addMessage('ai', aiText);
+        })
+        .catch(error => {
+            addMessage('ai', `❌ Ошибка соединения с ИИ:\n${error.message}`);
+        });
     }
+
+    // ==================================================================
 
     sendBtn.addEventListener('click', handleSend);
     inputField.addEventListener('keydown', (e) => {
